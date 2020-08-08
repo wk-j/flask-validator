@@ -5,6 +5,7 @@ from flask_babel import lazy_gettext as _
 
 from . import appbuilder, db
 from .models import Contact, ContactGroup, Gender
+from app.models import Address
 
 
 def fill_gender():
@@ -73,9 +74,14 @@ class ContactGeneralView(ModelView):
     ]
 
 
+class AddressView(ModelView):
+    datamodel = SQLAInterface(Address)
+    list_columns = ["id", "no"]
+
+
 class GroupMasterView(MasterDetailView):
     datamodel = SQLAInterface(ContactGroup)
-    related_views = [ContactGeneralView]
+    related_views = [ContactGeneralView, AddressView]
 
 
 class GroupGeneralView(ModelView):
@@ -102,4 +108,8 @@ appbuilder.add_view(
 )
 appbuilder.add_view(
     ContactGeneralView, "List Contacts", icon="fa-envelope", category="Contacts"
+)
+
+appbuilder.add_view(
+    AddressView, "Address Views", icon="fa-envelope", category="Contacts"
 )
