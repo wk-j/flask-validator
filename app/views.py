@@ -2,6 +2,7 @@ from flask_appbuilder import ModelView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder.views import MasterDetailView
 from flask_babel import lazy_gettext as _
+from wtforms import SelectField, validators, ValidationError
 
 from . import appbuilder, db
 from .models import Contact, ContactGroup, Gender
@@ -17,6 +18,14 @@ def fill_gender():
         db.session.rollback()
 
 
+def my_length_check(form, field):
+    if len(field.data) != 13:
+        raise ValidationError('Field must be less than 13 characters')
+
+    if not field.isdigit():
+        raise ValidationError('Number only')
+
+
 class ContactGeneralView(ModelView):
     datamodel = SQLAInterface(Contact)
 
@@ -24,6 +33,14 @@ class ContactGeneralView(ModelView):
     list_columns = ["name", "personal_phone", "contact_group"]
 
     base_order = ("name", "asc")
+
+    validators_columns = {
+        "name": [
+            # validators.Length(min=13, message="Length = 13"),
+            # validators.NumberRange(min=0, max=999999999, message="Number only")
+            my_length_check
+        ]
+    }
 
     show_fieldsets = [
         ("Summary", {"fields": ["name", "gender", "contact_group"]}),
